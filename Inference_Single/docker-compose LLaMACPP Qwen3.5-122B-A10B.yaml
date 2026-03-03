@@ -1,0 +1,44 @@
+name: llama_cpp_inference
+
+networks:
+  server:
+    driver: bridge
+
+services:
+  llama_cpp:
+    image: ghcr.io/ggml-org/llama.cpp:server-cuda
+    container_name: LlamaCpp_Server
+    networks:
+      - server
+    ports:
+      - "8000:8080"
+    ipc: host
+    ulimits:
+      memlock: -1
+      stack: 67108864
+      nofile:
+        soft: 1048576
+        hard: 1048576
+    gpus: all
+    privileged: true
+    env_file:
+      - ../.env
+    environment:
+      # llama.cpp model cache (persistent on host)
+      - LLAMA_CACHE=/root/.cache/huggingface/llama.cpp
+    volumes:
+      # reuse your existing host cache root
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
+
+    command:
+      - --model
+      - /root/.cache/huggingface/hub/models--unsloth--Qwen3.5-122B-A10B-GGUF/snapshots/d503adb1b5f3b29521713c7460735ed753b04e68/Q4_0/Qwen3.5-122B-A10B-Q4_0-00001-of-00003.gguf
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      # GPU offload
+      - --n-gpu-layers
+      - "all"
+      - --ctx-size
+      - "262144"

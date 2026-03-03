@@ -9,7 +9,7 @@ services:
     image: nvcr.io/nvidia/tensorrt-llm/release:1.3.0rc3
     container_name: TensorRTLLM_Inference
     env_file:
-      - ../.env
+      - ./.env
     networks:
       - server
     ports:
@@ -31,7 +31,7 @@ services:
     command:
       - trtllm-serve
       - serve
-      - Qwen/Qwen3-32B-FP8
+      - nvidia/Qwen3-Coder-480B-A35B-Instruct-NVFP4
       - --host
       - 0.0.0.0
       - --port
